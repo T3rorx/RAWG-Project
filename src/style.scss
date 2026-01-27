@@ -2,13 +2,506 @@
 @tailwind components;
 @tailwind utilities;
 
-// Variables SCSS
-$mobile-width: 768px;
-$primary-color: #ff0000;
+// ============================================
+// VARIABLES SCSS - Extrait de la maquette Figma
+// ============================================
 
-// Mixins SCSS
+// Couleurs (depuis Figma)
+$bg-primary: #18181b;        // zinc-900
+$bg-secondary: #27272a;      // zinc-800
+$bg-tertiary: #a1a1aa;       // zinc-300
+$card-bg: #27272a;           // zinc-800 (couleur de fond des cartes)
+$accent-color: #be123c;      // rose-700
+$text-primary: #ffffff;      // white
+$text-secondary: #71717a;    // zinc-600
+$text-medium-gray: #a1a1aa;  // zinc-400
+$border-color: #ffffff;     // white
+
+// Typographie
+$font-family: 'AvenirNext', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-size-xs: 12px;         // text-xs
+$font-size-sm: 14px;         // text-sm
+$font-size-base: 16px;       // text-base
+$font-size-lg: 18px;         // text-lg
+$font-size-xl: 20px;         // text-xl
+$font-size-2xl: 24px;        // text-2xl
+$font-size-4xl: 36px;        // text-4xl
+$font-size-5xl: 48px;        // text-5xl
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// Espacements (depuis les positions Figma)
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 50px;
+$spacing-3xl: 64px;
+
+// Largeurs et hauteurs
+$container-width: 1024px;
+$header-height: 64px;
+$image-main-height: 576px;
+$card-width: 288px;          // w-72
+$card-height: 256px;         // h-64
+
+// Screenshots (basé sur maquette)
+$screenshot-width: 384px;    // w-96
+$screenshot-height: 256px;   // h-64
+$screenshot-height-first: 240px; // h-60 (première image)
+$screenshot-gap-horizontal: 95px; // gap entre colonnes
+$screenshot-gap-vertical: 47px;   // gap entre rangées
+
+// Border radius
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 20.5px;
+$radius-full: 9999px;
+
+// Breakpoints
+$mobile-width: 768px;
+$tablet-width: 1024px;
+$desktop-width: 1280px;
+
+// ============================================
+// MIXINS SCSS
+// ============================================
+
 @mixin mobile {
   @media (max-width: $mobile-width) {
     @content;
   }
+}
+
+@mixin tablet {
+  @media (min-width: #{$mobile-width + 1px}) and (max-width: $tablet-width) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$tablet-width + 1px}) {
+    @content;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ============================================
+// STYLES GLOBAUX
+// ============================================
+
+body {
+  font-family: $font-family;
+  background-color: $bg-primary;
+  color: $text-primary;
+}
+
+.page-detail {
+  background-color: $bg-primary;
+  min-height: 100vh;
+  padding: $spacing-2xl;
+  max-width: $container-width;
+  margin: 0 auto;
+  position: relative;
+  
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+// ============================================
+// STYLES PAGE DETAIL
+// ============================================
+
+// Hero Image
+.game-hero {
+  position: relative;
+  width: 100%;
+  height: $image-main-height;
+  margin-bottom: $spacing-xl;
+  
+  .game-main-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: $radius-md;
+  }
+  
+  .game-website-button {
+    position: absolute;
+    bottom: $spacing-xl;
+    right: $spacing-xl;
+    background-color: $accent-color;
+    color: $text-primary;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $radius-sm;
+    text-decoration: none;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-base;
+    display: none;
+    
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
+
+// Intro Text
+.game-intro {
+  margin-bottom: $spacing-3xl;
+  
+  .game-title {
+    font-size: $font-size-5xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin-bottom: $spacing-md;
+    line-height: 1.2;
+  }
+  
+  .game-rating {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $accent-color;
+    margin-bottom: $spacing-lg;
+  }
+  
+  .game-description {
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    line-height: 1.6;
+    
+    strong {
+      font-weight: $font-weight-bold;
+      display: block;
+      margin-top: $spacing-md;
+    }
+  }
+}
+
+// Métadonnées
+.game-metadata {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-xl;
+  margin-bottom: $spacing-3xl;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+  
+  .metadata-item {
+    color: $text-primary;
+    font-size: $font-size-base;
+    
+    strong {
+      font-weight: $font-weight-bold;
+      display: block;
+      margin-bottom: $spacing-xs;
+    }
+    
+    // Styles pour les logos de plateformes
+    .platform-icons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-sm;
+      align-items: center;
+      margin-top: $spacing-xs;
+    }
+    
+    .platform-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      transition: transform 0.2s ease-in-out;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+      
+      .platform-icon {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+      }
+      
+      .platform-name-fallback {
+        color: $text-primary;
+        font-size: $font-size-sm;
+        margin-left: $spacing-xs;
+      }
+      
+      &.platform-text {
+        color: $text-primary;
+        font-size: $font-size-sm;
+        text-decoration: none;
+        
+        &:hover {
+          color: $accent-color;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// Sections (BUY, TRAILER, SCREENSHOTS, etc.)
+.section-title {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  color: $accent-color;
+  margin-bottom: $spacing-xl;
+  margin-top: $spacing-3xl;
+}
+
+.game-buy-section {
+  margin-bottom: $spacing-3xl;
+  
+  .game-stores {
+    .store-item {
+      margin-bottom: $spacing-md;
+      
+      .store-link {
+        color: $text-primary;
+        text-decoration: none;
+        font-size: $font-size-base;
+        font-weight: $font-weight-medium;
+        display: inline-block;
+        padding-bottom: $spacing-xs;
+        border-bottom: 2px solid $accent-color;
+        width: 128px;
+        
+        &:hover {
+          color: $accent-color;
+        }
+      }
+    }
+  }
+}
+
+.game-trailer-section {
+  margin-bottom: $spacing-3xl;
+  
+  .game-trailer {
+    .trailer-video {
+      width: 100%;
+      max-width: 922px;
+      height: auto;
+      border-radius: $radius-md;
+    }
+  }
+}
+
+.game-screenshots-section {
+  margin-bottom: $spacing-3xl;
+  
+  .game-screenshots {
+    display: grid;
+    grid-template-columns: $screenshot-width $screenshot-width;
+    gap: $screenshot-gap-vertical $screenshot-gap-horizontal; // row-gap vertical, column-gap horizontal
+    justify-content: start;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-lg;
+    }
+    
+    .screenshot-image {
+      width: $screenshot-width;
+      height: $screenshot-height;
+      border-radius: $radius-md;
+      object-fit: cover;
+      
+      // Première image h-60 selon maquette
+      &:first-child {
+        height: $screenshot-height-first;
+      }
+      
+      @include mobile {
+        width: 100%;
+        height: auto;
+        min-height: 200px;
+      }
+    }
+  }
+}
+
+.game-youtube-section {
+  margin-bottom: $spacing-3xl;
+  
+  .game-youtube {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(296px, 1fr));
+    gap: $spacing-lg;
+    
+    .youtube-item {
+      .youtube-thumbnail {
+        width: 100%;
+        height: 166px;
+        object-fit: cover;
+        border-radius: $radius-md;
+        margin-bottom: $spacing-md;
+      }
+      
+      .youtube-info {
+        .youtube-title {
+          font-size: $font-size-base;
+          font-weight: $font-weight-bold;
+          color: $text-primary;
+          margin-bottom: $spacing-xs;
+        }
+        
+        .youtube-link {
+          font-size: $font-size-base;
+          font-weight: $font-weight-bold;
+          color: $accent-color;
+          text-decoration: none;
+          
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+.game-similar-section {
+  margin-bottom: $spacing-3xl;
+  
+  .game-similar-games {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-xl;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+    
+    .similar-game-card {
+      background-color: $card-bg;
+      border-radius: $radius-lg;
+      overflow: hidden;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      }
+      
+      .similar-game-link {
+        display: block;
+        text-decoration: none;
+        color: $text-primary;
+        
+        .similar-game-image {
+          width: 100%;
+          height: 193px; // h-48 de la maquette
+          object-fit: cover;
+        }
+        
+        .similar-game-info {
+          padding: $spacing-md;
+          
+          .similar-game-name {
+            font-size: $font-size-2xl;
+            font-weight: $font-weight-bold;
+            color: $text-primary;
+            margin-bottom: $spacing-sm;
+            @include text-ellipsis;
+          }
+          
+          .similar-game-platforms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: $spacing-xs;
+            align-items: center;
+            
+            .platform-icon-small {
+              width: 20px;
+              height: 20px;
+              object-fit: contain;
+            }
+            
+            .platform-name-small,
+            .platform-name-fallback-small {
+              font-size: $font-size-xs;
+              color: $text-medium-gray;
+              margin: 0 $spacing-xs;
+            }
+            
+            .no-platforms {
+              font-size: $font-size-sm;
+              color: $text-medium-gray;
+            }
+          }
+        }
+      }
+    }
+    
+    .no-similar-games,
+    .error-similar {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: $text-secondary;
+      padding: $spacing-2xl;
+      font-size: $font-size-lg;
+    }
+  }
+}
+
+// ============================================
+// STYLES PAGE LIST
+// ============================================
+
+.page-list {
+  .game-card-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    align-items: center;
+    justify-content: center;
+    margin-top: $spacing-sm;
+    
+    .platform-icon-small {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    
+    .platform-name-small,
+    .platform-name-fallback-small {
+      font-size: $font-size-xs;
+      color: $text-medium-gray;
+      margin: 0 $spacing-xs;
+    }
+    
+    .no-platforms {
+      font-size: $font-size-sm;
+      color: $text-medium-gray;
+    }
+  }
+}
+
+// Error message
+.error {
+  color: $accent-color;
+  text-align: center;
+  padding: $spacing-3xl;
+  font-size: $font-size-xl;
 }
