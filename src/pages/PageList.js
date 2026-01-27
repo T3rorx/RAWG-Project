@@ -44,11 +44,11 @@ export const PageList = (argument = '') => {
       }
     }
 
-    // Initialiser les valeurs des inputs
-    const sortSelect = document.querySelector('.page-list .sort-select');
-    
-    // Connecter le header de recherche global
+    // Initialiser les valeurs des inputs globaux
     const globalSearchInput = document.getElementById('globalSearchInput');
+    const globalSortSelect = document.getElementById('globalSortSelect');
+    
+    // Synchroniser le champ de recherche global
     if (globalSearchInput) {
       if (filterType === 'search') {
         globalSearchInput.value = filterValue;
@@ -56,8 +56,10 @@ export const PageList = (argument = '') => {
         globalSearchInput.value = '';
       }
     }
-    if (sortSelect) {
-      sortSelect.value = currentSort;
+    
+    // Synchroniser le select de tri global
+    if (globalSortSelect) {
+      globalSortSelect.value = currentSort;
     }
 
     fetchGames();
@@ -167,19 +169,31 @@ export const PageList = (argument = '') => {
 
   const displayResults = (articles) => {
     const resultsContent = articles.map((article) => {
-      // Générer les logos de plateformes
-      const platformIcons = article.platforms?.map(p => {
+      // Générer les logos de plateformes (sans doublons)
+      const uniquePlatforms = new Map();
+      article.platforms?.forEach(p => {
         const platformSlug = p.platform.slug || p.platform.name?.toLowerCase().replace(/\s+/g, '-');
-        const platformName = getPlatformName(p.platform.name, platformSlug);
-        const iconUrl = getPlatformIcon(platformSlug);
-        
-        // Si pas d'URL d'icône, ne rien afficher (ou afficher le nom en fallback)
-        if (!iconUrl) {
-          return `<span class="platform-name-small" title="${platformName}">${platformName}</span>`;
+        // Utiliser le slug normalisé comme clé pour éviter les doublons
+        const normalizedSlug = platformSlug?.toLowerCase().replace(/\s+/g, '-');
+        if (!uniquePlatforms.has(normalizedSlug)) {
+          uniquePlatforms.set(normalizedSlug, p);
         }
-        
-        return `<img src="${iconUrl}" alt="${platformName}" class="platform-icon-small" title="${platformName}" onerror="this.style.display='none'; this.nextElementSibling?.style.display='inline';" /><span class="platform-name-fallback-small" style="display: none;">${platformName}</span>`;
-      }).join('') || '<span class="no-platforms">N/A</span>';
+      });
+      
+      const platformIcons = uniquePlatforms.size > 0 
+        ? Array.from(uniquePlatforms.values()).map(p => {
+            const platformSlug = p.platform.slug || p.platform.name?.toLowerCase().replace(/\s+/g, '-');
+            const platformName = getPlatformName(p.platform.name, platformSlug);
+            const iconUrl = getPlatformIcon(platformSlug);
+            
+            // Si pas d'URL d'icône, ne rien afficher (ou afficher le nom en fallback)
+            if (!iconUrl) {
+              return `<span class="platform-name-small" title="${platformName}">${platformName}</span>`;
+            }
+            
+            return `<img src="${iconUrl}" alt="${platformName}" class="platform-icon-small" title="${platformName}" onerror="this.style.display='none'; this.nextElementSibling?.style.display='inline';" /><span class="platform-name-fallback-small" style="display: none;">${platformName}</span>`;
+          }).join('')
+        : '<span class="no-platforms">N/A</span>';
       
       const genres = article.genres?.map(g => g.name).join(', ') || 'N/A';
       const publishers = article.publishers?.map(p => p.name).join(', ') || 'N/A';
@@ -254,14 +268,6 @@ export const PageList = (argument = '') => {
   const render = () => {
     pageContent.innerHTML = `
       <section class="page-list">
-        <div class="page-list-controls">
-          <select class="sort-select">
-            <option value="name">Nom</option>
-            <option value="released">Release Date</option>
-            <option value="popularity">Popularity</option>
-            <option value="rating">Average rating</option>
-          </select>
-        </div>
         <div class="articles grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div class="text-center text-gray-400">Loading...</div>
         </div>
@@ -270,7 +276,6 @@ export const PageList = (argument = '') => {
     `;
 
     // Event listeners
-    const sortSelect = document.querySelector('.page-list .sort-select');
     const showMoreButton = document.querySelector('.page-list .show-more-button');
     
     // Connecter le header de recherche global
@@ -289,9 +294,15 @@ export const PageList = (argument = '') => {
         }, 500);
       });
     }
-
-    if (sortSelect) {
-      sortSelect.addEventListener('change', (e) => {
+    
+    // Connecter le select de tri global
+    const globalSortSelect = document.getElementById('globalSortSelect');
+    if (globalSortSelect) {
+      // Synchroniser avec le tri actuel
+      globalSortSelect.value = currentSort;
+      
+      // Écouter les changements dans le select global
+      globalSortSelect.addEventListener('change', (e) => {
         handleSort(e.target.value);
       });
     }

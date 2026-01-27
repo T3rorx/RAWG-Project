@@ -174,6 +174,18 @@ a {
     }
   }
   
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    
+    @include mobile {
+      flex-direction: column;
+      width: 100%;
+      gap: $spacing-sm;
+    }
+  }
+  
   .header-search {
     position: relative;
     width: 288px; // w-72
@@ -213,6 +225,29 @@ a {
         outline: none;
         border-color: $accent-color;
       }
+    }
+  }
+  
+  .header-sort-select {
+    height: 40px; // h-10 (même hauteur que le champ de recherche)
+    padding: $spacing-sm $spacing-md;
+    border-radius: $radius-lg;
+    border: 1px solid $border-color;
+    background-color: $bg-secondary;
+    color: $text-primary;
+    font-size: $font-size-lg;
+    font-family: $font-family;
+    cursor: pointer;
+    min-width: 180px;
+    
+    @include mobile {
+      width: 100%;
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: color.adjust($accent-color, $lightness: 10%);
+      box-shadow: 0 0 0 2px rgba($accent-color, 0.5);
     }
   }
 }
@@ -656,6 +691,74 @@ main {
 }
 
 // ============================================
+// STYLES PAGE HOME
+// ============================================
+
+.home {
+  max-width: $container-width;
+  margin: 0 auto;
+  padding: $spacing-2xl;
+  
+  @include mobile {
+    padding: $spacing-md;
+  }
+  
+  .articles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); // Grille 3x3 fixe
+    gap: $spacing-xl;
+    
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr); // 2 colonnes sur tablette
+    }
+    
+    @include mobile {
+      grid-template-columns: 1fr; // 1 colonne sur mobile
+      gap: $spacing-lg;
+    }
+  }
+  
+  // Réutiliser les styles des cartes de jeu de PageList
+  .game-card-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+    align-items: center;
+    justify-content: center;
+    margin-top: $spacing-sm;
+    
+    // S'assurer que les images et spans sont inline
+    img,
+    span {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .platform-icon-small {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .platform-name-small,
+    .platform-name-fallback-small {
+      font-size: $font-size-xs;
+      color: $text-medium-gray;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .no-platforms {
+      font-size: $font-size-sm;
+      color: $text-medium-gray;
+      display: inline-block;
+    }
+  }
+}
+
+// ============================================
 // STYLES PAGE LIST
 // ============================================
 
@@ -666,36 +769,6 @@ main {
   
   @include mobile {
     padding: $spacing-md;
-  }
-  
-  .page-list-controls {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: $spacing-xl;
-    gap: $spacing-md;
-    
-    @include mobile {
-      justify-content: center;
-    }
-    
-    .sort-select {
-      height: 40px;
-      padding: $spacing-sm $spacing-md;
-      border-radius: $radius-lg;
-      border: 1px solid $border-color;
-      background-color: $bg-secondary;
-      color: $text-primary;
-      font-size: $font-size-lg;
-      font-family: $font-family;
-      cursor: pointer;
-      
-      &:focus {
-        outline: none;
-        border-color: color.adjust($accent-color, $lightness: 10%);
-        box-shadow: 0 0 0 2px rgba($accent-color, 0.5);
-      }
-    }
   }
   
   .articles {
@@ -737,22 +810,33 @@ main {
     justify-content: center;
     margin-top: $spacing-sm;
     
+    // S'assurer que les images et spans sont inline
+    img,
+    span {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
     .platform-icon-small {
       width: 20px;
       height: 20px;
       object-fit: contain;
+      display: inline-block;
+      vertical-align: middle;
     }
     
     .platform-name-small,
     .platform-name-fallback-small {
       font-size: $font-size-xs;
       color: $text-medium-gray;
-      margin: 0 $spacing-xs;
+      display: inline-block;
+      vertical-align: middle;
     }
     
     .no-platforms {
       font-size: $font-size-sm;
       color: $text-medium-gray;
+      display: inline-block;
     }
   }
 }
