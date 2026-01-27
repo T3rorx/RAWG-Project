@@ -1,3 +1,5 @@
+@use "sass:color";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,6 +27,7 @@ $font-size-base: 16px;       // text-base
 $font-size-lg: 18px;         // text-lg
 $font-size-xl: 20px;         // text-xl
 $font-size-2xl: 24px;        // text-2xl
+$font-size-3xl: 30px;        // text-3xl (custom for mobile header)
 $font-size-4xl: 36px;        // text-4xl
 $font-size-5xl: 48px;        // text-5xl
 
@@ -108,6 +111,120 @@ body {
   font-family: $font-family;
   background-color: $bg-primary;
   color: $text-primary;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: $accent-color;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ============================================
+// HEADER GLOBAL
+// ============================================
+
+.app-header {
+  width: 100%;
+  padding: $spacing-xl $spacing-2xl;
+  background-color: $bg-primary;
+  position: relative;
+  
+  @include mobile {
+    padding: $spacing-md;
+  }
+  
+  .header-container {
+    max-width: $container-width;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: $header-height;
+    
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-md;
+      height: auto;
+    }
+  }
+  
+  .header-title {
+    margin: 0;
+    font-size: $font-size-5xl;
+    font-weight: $font-weight-bold;
+    color: $accent-color;
+    
+    a {
+      color: $accent-color;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: none;
+        opacity: 0.9;
+      }
+    }
+    
+    @include mobile {
+      font-size: $font-size-3xl;
+    }
+  }
+  
+  .header-search {
+    position: relative;
+    width: 288px; // w-72
+    
+    @include mobile {
+      width: 100%;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: $spacing-md;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 19px;
+      height: 19px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .search-input {
+      width: 100%;
+      height: 40px; // h-10
+      padding: $spacing-sm $spacing-md $spacing-sm 50px; // left padding pour l'icône
+      border-radius: $radius-lg; // rounded-[20.50px]
+      border: 1px solid $border-color;
+      background-color: transparent;
+      color: $text-primary;
+      font-size: $font-size-lg;
+      font-family: $font-family;
+      font-weight: $font-weight-normal;
+      
+      &::placeholder {
+        color: $text-secondary;
+      }
+      
+      &:focus {
+        outline: none;
+        border-color: $accent-color;
+      }
+    }
+  }
+}
+
+main {
+  max-width: $container-width;
+  margin: 0 auto;
+  padding: 0 $spacing-2xl;
+  
+  @include mobile {
+    padding: 0 $spacing-md;
+  }
 }
 
 .page-detail {
@@ -147,12 +264,27 @@ body {
     right: $spacing-xl;
     background-color: $accent-color;
     color: $text-primary;
-    padding: $spacing-md $spacing-xl;
+    padding: $spacing-md $spacing-lg;
     border-radius: $radius-sm;
     text-decoration: none;
     font-weight: $font-weight-bold;
     font-size: $font-size-base;
     display: none;
+    @include flex-center;
+    gap: $spacing-xs;
+    min-width: 224px; // w-56
+    height: 48px; // h-12
+    
+    // Icône flèche selon maquette
+    &::after {
+      content: '';
+      width: 15px;
+      height: 20px;
+      background-image: url("data:image/svg+xml,%3Csvg width='15' height='20' viewBox='0 0 15 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.536 19.8857C0.865647 20.0571 1.26304 20.0325 1.569 19.8217L14.569 10.8217C14.8386 10.6349 14.9995 10.3277 14.9995 9.99967C14.9995 9.67164 14.8386 9.36447 14.569 9.17766L1.569 0.177665C1.26322 -0.0339108 0.865303 -0.0583548 0.53593 0.114204C0.206556 0.286763 0.000125503 0.627827 1.36497e-08 0.999665V18.9997C-6.12974e-05 19.3717 0.206428 19.713 0.536 19.8857Z' fill='white'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
     
     &:hover {
       opacity: 0.9;
@@ -163,20 +295,44 @@ body {
 // Intro Text
 .game-intro {
   margin-bottom: $spacing-3xl;
+  margin-top: $spacing-3xl; // Espacement depuis l'image principale (selon maquette: top-[626px] après image à 576px)
+  position: relative;
+  
+  // Conteneur pour titre et rating côte à côte
+  .game-title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: $spacing-md;
+    gap: $spacing-lg;
+    
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-md;
+      align-items: flex-start;
+    }
+  }
   
   .game-title {
     font-size: $font-size-5xl;
     font-weight: $font-weight-bold;
     color: $text-primary;
-    margin-bottom: $spacing-md;
+    margin-bottom: 0;
     line-height: 1.2;
+    flex: 1;
   }
   
   .game-rating {
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
     color: $accent-color;
-    margin-bottom: $spacing-lg;
+    margin-bottom: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+    
+    @include mobile {
+      align-self: flex-start;
+    }
   }
   
   .game-description {
@@ -184,11 +340,13 @@ body {
     font-weight: $font-weight-medium;
     color: $text-primary;
     line-height: 1.6;
+    margin-top: $spacing-lg;
     
     strong {
       font-weight: $font-weight-bold;
       display: block;
       margin-top: $spacing-md;
+      margin-bottom: $spacing-xs;
     }
   }
 }
@@ -273,21 +431,46 @@ body {
   margin-bottom: $spacing-3xl;
   
   .game-stores {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    
     .store-item {
-      margin-bottom: $spacing-md;
+      margin-bottom: 0;
       
       .store-link {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
         color: $text-primary;
-        text-decoration: none;
         font-size: $font-size-base;
         font-weight: $font-weight-medium;
-        display: inline-block;
-        padding-bottom: $spacing-xs;
+        text-decoration: none;
+        padding: $spacing-xs 0;
         border-bottom: 2px solid $accent-color;
-        width: 128px;
+        width: fit-content;
+        min-width: 128px;
+        transition: opacity 0.2s;
         
         &:hover {
-          color: $accent-color;
+          text-decoration: none;
+          opacity: 0.8;
+        }
+        
+        .store-icon {
+          width: 20px;
+          height: 20px;
+          object-fit: contain;
+        }
+        
+        .store-name {
+          flex: 1;
+        }
+        
+        .store-external-icon {
+          width: 17px;
+          height: 20px;
+          flex-shrink: 0;
         }
       }
     }
@@ -312,24 +495,31 @@ body {
   
   .game-screenshots {
     display: grid;
-    grid-template-columns: $screenshot-width $screenshot-width;
-    gap: $screenshot-gap-vertical $screenshot-gap-horizontal; // row-gap vertical, column-gap horizontal
-    justify-content: start;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+    max-width: 100%;
     
     @include mobile {
       grid-template-columns: 1fr;
-      gap: $spacing-lg;
+      gap: $spacing-md;
     }
     
     .screenshot-image {
-      width: $screenshot-width;
-      height: $screenshot-height;
-      border-radius: $radius-md;
+      width: 100%;
+      height: auto;
+      min-height: 240px;
       object-fit: cover;
+      border-radius: $radius-md;
       
-      // Première image h-60 selon maquette
-      &:first-child {
-        height: $screenshot-height-first;
+      // Première image peut être plus grande selon la maquette
+      &:nth-child(1),
+      &:nth-child(2) {
+        min-height: 248px;
+      }
+      
+      &:nth-child(3),
+      &:nth-child(4) {
+        min-height: 249px;
       }
       
       @include mobile {
@@ -470,6 +660,75 @@ body {
 // ============================================
 
 .page-list {
+  max-width: $container-width;
+  margin: 0 auto;
+  padding: $spacing-2xl;
+  
+  @include mobile {
+    padding: $spacing-md;
+  }
+  
+  .page-list-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: $spacing-xl;
+    gap: $spacing-md;
+    
+    @include mobile {
+      justify-content: center;
+    }
+    
+    .sort-select {
+      height: 40px;
+      padding: $spacing-sm $spacing-md;
+      border-radius: $radius-lg;
+      border: 1px solid $border-color;
+      background-color: $bg-secondary;
+      color: $text-primary;
+      font-size: $font-size-lg;
+      font-family: $font-family;
+      cursor: pointer;
+      
+      &:focus {
+        outline: none;
+        border-color: color.adjust($accent-color, $lightness: 10%);
+        box-shadow: 0 0 0 2px rgba($accent-color, 0.5);
+      }
+    }
+  }
+  
+  .articles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax($card-width, 1fr));
+    gap: $spacing-xl;
+    margin-bottom: $spacing-3xl;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-lg;
+    }
+  }
+  
+  .show-more-button {
+    display: block;
+    margin: $spacing-xl auto;
+    background-color: $accent-color;
+    color: $text-primary;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $radius-sm;
+    border: none;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    cursor: pointer;
+    width: 224px; // w-56 from Figma
+    height: 48px; // h-12 from Figma
+    
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+  
   .game-card-platforms {
     display: flex;
     flex-wrap: wrap;

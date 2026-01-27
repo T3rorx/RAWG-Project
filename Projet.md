@@ -70,13 +70,13 @@ Pour ce qui est des URL des autres pages, libre à toi.
 2.2.2. Design
 Une touche particulière doit être apportée au design du site.
 
-Effectivement, tu devras utiliser obligatoirement SCSS (et Bootstrap si tu le souhaites) pour réaliser ton design. Tu devras également suivre les maquettes (pas précisément au millimètre près, ne t’en fais pas, mais la forme globale doit être là (je n'ai pas placé mes éléments au hasard, le but étant de te faire travailler au maximum ton CSS/SCSS)) . Bootstrap n’est pas obligatoire (si jamais tu préfères utiliser juste SCSS ou te mettre un peu au défi, ne prends pas Bootstrap), mais SCSS est obligatoire pour toutes les choses que Bootstrap ne peut pas mettre en place, par exemple les mixins ou les variables.
+Effectivement, tu devras utiliser obligatoirement SCSS (et TailwindCSS si tu le souhaites) pour réaliser ton design. Tu devras également suivre les maquettes (pas précisément au millimètre près, ne t'en fais pas, mais la forme globale doit être là (je n'ai pas placé mes éléments au hasard, le but étant de te faire travailler au maximum ton CSS/SCSS)) . TailwindCSS n'est pas obligatoire (si jamais tu préfères utiliser juste SCSS ou te mettre un peu au défi, ne prends pas TailwindCSS), mais SCSS est obligatoire pour toutes les choses que TailwindCSS ne peut pas mettre en place, par exemple les mixins ou les variables.
 
-Une base de mobile doit être faite, mais si elle n'est pas complète, ce n'est pas grave, tu n'as pas le temps de faire un SCSS et/ou Bootstrap complet. L'essentiel est que le site ne soit pas 100% cassé si on le regarde sur mobile.
+Une base de mobile doit être faite, mais si elle n'est pas complète, ce n'est pas grave, tu n'as pas le temps de faire un SCSS et/ou TailwindCSS complet. L'essentiel est que le site ne soit pas 100% cassé si on le regarde sur mobile.
 
-Être développeur front-end, c'est savoir créer une architecture de site, gérer des données ou afficher des pages, mais c'est aussi savoir intégrer des pages. Quand tu auras du temps pour t'entraîner, dans le futur, essaye d'éliminer peu à peu tout ce qui peut t'aider à faire ton CSS, type bootstrap, etc.
+Être développeur front-end, c'est savoir créer une architecture de site, gérer des données ou afficher des pages, mais c'est aussi savoir intégrer des pages. Quand tu auras du temps pour t'entraîner, dans le futur, essaye d'éliminer peu à peu tout ce qui peut t'aider à faire ton CSS, type tailwindcss, etc.
 
-Si tu as quelques galères avec Flexbox si jamais tu as choisi de faire ton projet sans Bootstrap, tu peux aller faire un tour sur Flexbox Froggy pour t'aider.
+Si tu as quelques galères avec Flexbox si jamais tu as choisi de faire ton projet sans TailwindCSS, tu peux aller faire un tour sur Flexbox Froggy pour t'aider.
 
 Quelques animations doivent être mises si jamais tu as de l'inspiration. La seule obligatoire est celle-ci : les liens internes doivent être soulignés au hover en suivant le premier exemple de ce Codepen.
 

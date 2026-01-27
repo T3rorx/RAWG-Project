@@ -3,26 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RAWG Games Database</title>
+    <title>The Hyper Progame - RAWG Games Database</title>
   </head>
 
-  <body class="bg-gray-900 text-gray-100 min-h-screen">
-    <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
-      <div class="flex gap-4">
-        <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors font-medium">
-          Home
-        </a>
-        <a href="#pagelist" class="text-blue-400 hover:text-blue-300 transition-colors font-medium">
-          PageList
-        </a>
-        <a href="#pagelist/borderlands" class="text-blue-400 hover:text-blue-300 transition-colors font-medium">
-          PageList borderlands
-        </a>
+  <body>
+    <!-- Header Global -->
+    <header class="app-header">
+      <div class="header-container">
+        <h1 class="header-title">
+          <a href="#">The Hyper Progame</a>
+        </h1>
+        <div class="header-search">
+          <svg class="search-icon" width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12.607 11.3156L18.6938 17.4023C18.7298 17.4384 18.7501 17.4873 18.7501 17.5383C18.7501 17.5893 18.7298 17.6382 18.6938 17.6742L17.6719 18.6938C17.6358 18.7298 17.5869 18.7501 17.5359 18.7501C17.4849 18.7501 17.436 18.7298 17.4 18.6938L11.3133 12.6094C10.0922 13.5516 8.60156 14.0625 7.03125 14.0625C5.15156 14.0625 3.38672 13.3313 2.06016 12.0023C0.733594 10.6758 0 8.90859 0 7.03125C0 5.15156 0.73125 3.38672 2.06016 2.06016C3.38672 0.733594 5.15391 0 7.03125 0C8.90859 0 10.6758 0.73125 12.0023 2.06016C13.3289 3.38906 14.0625 5.15156 14.0625 7.03125C14.0625 8.60156 13.5516 10.0945 12.607 11.3156ZM7.03125 12.2812C8.43281 12.2812 9.75 11.7352 10.7437 10.7437C11.7352 9.75234 12.2812 8.43281 12.2812 7.03125C12.2812 5.62969 11.7352 4.3125 10.7437 3.31875C9.75234 2.325 8.43281 1.78125 7.03125 1.78125C5.62969 1.78125 4.3125 2.32734 3.31875 3.31875C2.32734 4.31016 1.78125 5.62969 1.78125 7.03125C1.78125 8.43281 2.32734 9.75 3.31875 10.7437C4.3125 11.7352 5.62969 12.2812 7.03125 12.2812Z" fill="white"/>
+          </svg>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Find a game…" 
+            id="globalSearchInput"
+          />
+        </div>
       </div>
-    </nav>
+    </header>
 
-    <main class="container mx-auto px-6 py-8">
-      <section id="pageContent" class="min-h-[60vh]">
+    <main>
+      <section id="pageContent">
         <div class="text-center text-gray-400">
           Choisissez un lien
         </div>

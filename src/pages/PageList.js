@@ -45,11 +45,16 @@ export const PageList = (argument = '') => {
     }
 
     // Initialiser les valeurs des inputs
-    const searchInput = document.querySelector('.page-list .search-input');
     const sortSelect = document.querySelector('.page-list .sort-select');
     
-    if (searchInput && filterType !== 'search') {
-      searchInput.value = '';
+    // Connecter le header de recherche global
+    const globalSearchInput = document.getElementById('globalSearchInput');
+    if (globalSearchInput) {
+      if (filterType === 'search') {
+        globalSearchInput.value = filterValue;
+      } else {
+        globalSearchInput.value = '';
+      }
     }
     if (sortSelect) {
       sortSelect.value = currentSort;
@@ -250,12 +255,6 @@ export const PageList = (argument = '') => {
     pageContent.innerHTML = `
       <section class="page-list">
         <div class="page-list-controls">
-          <input 
-            type="text" 
-            class="search-input" 
-            placeholder="Find a game…" 
-            value="${currentSearch}"
-          />
           <select class="sort-select">
             <option value="name">Nom</option>
             <option value="released">Release Date</option>
@@ -271,16 +270,22 @@ export const PageList = (argument = '') => {
     `;
 
     // Event listeners
-    const searchInput = document.querySelector('.page-list .search-input');
     const sortSelect = document.querySelector('.page-list .sort-select');
     const showMoreButton = document.querySelector('.page-list .show-more-button');
-
-    if (searchInput) {
-      let searchTimeout;
-      searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-          handleSearch(e.target.value);
+    
+    // Connecter le header de recherche global
+    const globalSearchInput = document.getElementById('globalSearchInput');
+    if (globalSearchInput) {
+      // Synchroniser avec la recherche actuelle
+      globalSearchInput.value = currentSearch;
+      
+      // Écouter les changements dans le header global
+      let globalSearchTimeout;
+      globalSearchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value;
+        clearTimeout(globalSearchTimeout);
+        globalSearchTimeout = setTimeout(() => {
+          handleSearch(searchTerm);
         }, 500);
       });
     }
