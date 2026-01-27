@@ -6,14 +6,28 @@
     <title>RAWG Games Database</title>
   </head>
 
-  <body>
-    <a href="#">Home</a>
-    <a href="#pagelist">PageList</a>
-    <a href="#pagelist/borderlands">PageList borderlands</a>
+  <body class="bg-gray-900 text-gray-100 min-h-screen">
+    <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+      <div class="flex gap-4">
+        <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors font-medium">
+          Home
+        </a>
+        <a href="#pagelist" class="text-blue-400 hover:text-blue-300 transition-colors font-medium">
+          PageList
+        </a>
+        <a href="#pagelist/borderlands" class="text-blue-400 hover:text-blue-300 transition-colors font-medium">
+          PageList borderlands
+        </a>
+      </div>
+    </nav>
 
-    <section id="pageContent" class="bg-blue-500 text-white p-4">
-      Choisissez un lien
-    </section>
+    <main class="container mx-auto px-6 py-8">
+      <section id="pageContent" class="min-h-[60vh]">
+        <div class="text-center text-gray-400">
+          Choisissez un lien
+        </div>
+      </section>
+    </main>
 
     <script type="module" src="/src/main.js"></script>  
   </body>

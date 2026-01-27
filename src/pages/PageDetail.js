@@ -34,10 +34,10 @@ export const PageDetail = (argument) => {
   const render = () => {
     pageContent.innerHTML = `
       <section class="page-detail">
-        <div class="article">
-          <h1 class="title"></h1>
-          <p class="release-date">Release date : <span></span></p>
-          <p class="description"></p>
+        <div class="article bg-gray-800 rounded-lg p-6 max-w-4xl mx-auto">
+          <h1 class="title text-3xl font-bold text-white mb-4"></h1>
+          <p class="release-date text-gray-400 mb-4">Release date : <span class="text-white"></span></p>
+          <p class="description text-gray-300 leading-relaxed"></p>
         </div>
       </section>
     `;
