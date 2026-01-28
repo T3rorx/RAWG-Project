@@ -16,12 +16,17 @@ export const PageList = (argument = '') => {
   const parseArgument = (arg) => {
     if (!arg) return { type: '', value: '' };
     
-    // Format: developer/123, publisher/456, platform/789, genre/123, tag/123
+    // Format: developer/123, publisher/456, platform/789, genre/123, tag/123, search/terme
+    // Le navigateur décode automatiquement l'URL, donc on peut split directement
     const parts = arg.split('/');
-    if (parts.length === 2) {
-      return { type: parts[0], value: parts[1] };
+    if (parts.length >= 2) {
+      const type = parts[0];
+      // Rejoindre les parties restantes au cas où la valeur contiendrait des '/' (peu probable mais possible)
+      const value = parts.slice(1).join('/');
+      return { type, value: decodeURIComponent(value) };
     }
-    return { type: 'search', value: arg };
+    // Si pas de '/', c'est une recherche simple (format ancien pour compatibilité)
+    return { type: 'search', value: decodeURIComponent(arg) };
   };
 
   const preparePage = () => {
@@ -90,7 +95,8 @@ export const PageList = (argument = '') => {
       url += `&tags=${filterValue}`;
       hasFilter = true;
     } else if (filterType === 'search' || currentSearch) {
-      url += `&search=${filterType === 'search' ? filterValue : currentSearch}`;
+      const searchTerm = filterType === 'search' ? filterValue : currentSearch;
+      url += `&search=${encodeURIComponent(searchTerm)}`;
       hasFilter = true;
     }
 
@@ -205,20 +211,21 @@ export const PageList = (argument = '') => {
 
       return `
         <article class="game-card" data-game-id="${gameId}">
-          <div class="game-card-default">
-            <img src="${image}" alt="${article.name}" class="game-card-image" />
-            <h1 class="game-card-name">${article.name}</h1>
-            <div class="game-card-platforms">${platformIcons}</div>
-          </div>
-          <div class="game-card-hover">
-            <div class="game-card-hover-content">
-              <p class="game-card-released"><strong>Release Date:</strong> ${released}</p>
-              <p class="game-card-publisher"><strong>Publisher:</strong> ${publishers}</p>
-              <p class="game-card-genres"><strong>Genres:</strong> ${genres}</p>
-              <p class="game-card-rating"><strong>Rating:</strong> ${rating}/5 (${ratingsCount} votes)</p>
+          <a href="#pagedetail/${gameId}" class="game-card-link-wrapper">
+            <div class="game-card-default">
+              <img src="${image}" alt="${article.name}" class="game-card-image" />
+              <h1 class="game-card-name">${article.name}</h1>
+              <div class="game-card-platforms">${platformIcons}</div>
             </div>
-          </div>
-          <a href="#pagedetail/${gameId}" class="game-card-link">Voir les détails</a>
+            <div class="game-card-hover">
+              <div class="game-card-hover-content">
+                <p class="game-card-released"><strong>Release Date:</strong> ${released}</p>
+                <p class="game-card-publisher"><strong>Publisher:</strong> ${publishers}</p>
+                <p class="game-card-genres"><strong>Genres:</strong> ${genres}</p>
+                <p class="game-card-rating"><strong>Rating:</strong> ${rating}/5 (${ratingsCount} votes)</p>
+              </div>
+            </div>
+          </a>
         </article>
       `;
     });
@@ -268,7 +275,7 @@ export const PageList = (argument = '') => {
   const render = () => {
     pageContent.innerHTML = `
       <section class="page-list">
-        <div class="articles grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="articles">
           <div class="text-center text-gray-400">Loading...</div>
         </div>
         <button class="show-more-button" style="display: none;">Show more</button>
@@ -278,21 +285,16 @@ export const PageList = (argument = '') => {
     // Event listeners
     const showMoreButton = document.querySelector('.page-list .show-more-button');
     
-    // Connecter le header de recherche global
+    // Synchroniser le champ de recherche global avec l'état actuel
     const globalSearchInput = document.getElementById('globalSearchInput');
     if (globalSearchInput) {
-      // Synchroniser avec la recherche actuelle
-      globalSearchInput.value = currentSearch;
-      
-      // Écouter les changements dans le header global
-      let globalSearchTimeout;
-      globalSearchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value;
-        clearTimeout(globalSearchTimeout);
-        globalSearchTimeout = setTimeout(() => {
-          handleSearch(searchTerm);
-        }, 500);
-      });
+      // Synchroniser avec la recherche actuelle (mais ne pas ajouter d'event listener ici,
+      // car c'est géré globalement dans main.js)
+      if (filterType === 'search') {
+        globalSearchInput.value = filterValue;
+      } else {
+        globalSearchInput.value = currentSearch;
+      }
     }
     
     // Connecter le select de tri global
@@ -305,6 +307,15 @@ export const PageList = (argument = '') => {
       globalSortSelect.addEventListener('change', (e) => {
         handleSort(e.target.value);
       });
+      
+      // Écouter aussi l'événement personnalisé depuis main.js
+      const handleGlobalSortChange = (event) => {
+        handleSort(event.detail.sort);
+      };
+      window.addEventListener('globalSortChange', handleGlobalSortChange);
+      
+      // Nettoyer l'event listener quand on quitte la page
+      // (géré automatiquement par le garbage collector quand la fonction render est réappelée)
     }
 
     if (showMoreButton) {

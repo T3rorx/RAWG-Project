@@ -692,37 +692,107 @@ main {
 
 // ============================================
 // STYLES PAGE HOME
+// Mobile-first approach + WCAG compliance
 // ============================================
 
 .home {
+  // Mobile-first: container fluide, puis max-width sur desktop
+  width: 100%;
   max-width: $container-width;
   margin: 0 auto;
-  padding: $spacing-2xl;
   
-  @include mobile {
-    padding: $spacing-md;
+  // Padding mobile-first (petit sur mobile, augmente progressivement)
+  padding: $spacing-md; // 16px sur mobile (WCAG: espacement suffisant)
+  
+  @include tablet {
+    padding: $spacing-lg; // 24px sur tablette
+  }
+  
+  @include desktop {
+    padding: $spacing-xl; // 32px sur desktop (réduit de 50px pour plus d'espace)
   }
   
   .articles {
+    // Mobile-first: 1 colonne, puis 2, puis 3
+    // Gap adaptatif: plus petit sur mobile, plus grand sur desktop
     display: grid;
-    grid-template-columns: repeat(3, 1fr); // Grille 3x3 fixe
-    gap: $spacing-xl;
+    grid-template-columns: 1fr; // Mobile: 1 colonne
+    gap: $spacing-md; // 16px sur mobile (WCAG: espacement suffisant entre éléments)
     
     @include tablet {
-      grid-template-columns: repeat(2, 1fr); // 2 colonnes sur tablette
+      grid-template-columns: repeat(2, 1fr); // Tablette: 2 colonnes
+      gap: $spacing-lg; // 24px sur tablette
     }
     
-    @include mobile {
-      grid-template-columns: 1fr; // 1 colonne sur mobile
-      gap: $spacing-lg;
+    @include desktop {
+      grid-template-columns: repeat(3, 1fr); // Desktop: 3 colonnes (grille 3x3)
+      gap: $spacing-xl; // 32px sur desktop
     }
   }
   
-  // Réutiliser les styles des cartes de jeu de PageList
+  // Styles des cartes de jeu (mobile-first + WCAG)
+  .game-card {
+    // Assurer que les cartes s'adaptent à la grille
+    width: 100%;
+    min-width: 0; // Permet au contenu de se rétrécir dans la grille
+    display: flex;
+    flex-direction: column;
+    position: relative; // IMPORTANT: pour contenir le hover en position absolue
+    overflow: hidden; // Empêche le hover de déborder
+    border-radius: $radius-md; // Coins arrondis pour la carte
+    
+    // Accessibilité: focus visible (WCAG 2.4.7)
+    &:focus-within {
+      outline: 2px solid $accent-color;
+      outline-offset: 2px;
+    }
+  }
+  
+  .game-card-default {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .game-card-image {
+    // Image responsive (mobile-first)
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9; // Ratio d'aspect moderne pour les images de jeu
+    object-fit: cover;
+    display: block; // Évite l'espace sous l'image
+    
+    // Accessibilité: image décorative si alt vide (géré dans le HTML)
+  }
+  
+  .game-card-name {
+    // Typographie responsive (WCAG: texte lisible)
+    font-size: $font-size-base; // 16px base (WCAG minimum)
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: $spacing-sm 0;
+    line-height: 1.4; // WCAG: line-height suffisant pour la lisibilité
+    
+    @include tablet {
+      font-size: $font-size-lg; // 18px sur tablette
+    }
+    
+    @include desktop {
+      font-size: $font-size-xl; // 20px sur desktop
+    }
+    
+    // Accessibilité: texte qui ne déborde pas
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; // Max 2 lignes
+    -webkit-box-orient: vertical;
+  }
+  
   .game-card-platforms {
     display: flex;
     flex-wrap: wrap;
-    gap: $spacing-xs;
+    gap: $spacing-xs; // 4px gap (WCAG: espacement suffisant)
     align-items: center;
     justify-content: center;
     margin-top: $spacing-sm;
@@ -737,6 +807,8 @@ main {
     .platform-icon-small {
       width: 20px;
       height: 20px;
+      min-width: 20px; // Évite le rétrécissement
+      min-height: 20px;
       object-fit: contain;
       display: inline-block;
       vertical-align: middle;
@@ -744,18 +816,100 @@ main {
     
     .platform-name-small,
     .platform-name-fallback-small {
-      font-size: $font-size-xs;
+      font-size: $font-size-xs; // 12px (WCAG: minimum pour texte secondaire)
       color: $text-medium-gray;
       display: inline-block;
       vertical-align: middle;
     }
     
     .no-platforms {
-      font-size: $font-size-sm;
+      font-size: $font-size-sm; // 14px
       color: $text-medium-gray;
       display: inline-block;
     }
   }
+  
+  // Lien wrapper qui rend toute la carte cliquable
+  .game-card-link-wrapper {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    
+    // Focus visible (WCAG 2.4.7)
+    &:focus {
+      outline: 2px solid $accent-color;
+      outline-offset: 2px;
+      border-radius: $radius-md;
+    }
+  }
+  
+  .game-card-hover {
+    // État hover (seulement sur desktop pour éviter les problèmes tactiles)
+    @include desktop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-md;
+      z-index: 10; // S'assure que le hover est au-dessus du contenu
+      pointer-events: none; // Permet de cliquer à travers quand invisible
+    }
+    
+    // Sur mobile/tablette: pas d'overlay hover
+    @include mobile {
+      display: none;
+    }
+    
+    @include tablet {
+      display: none;
+    }
+  }
+  
+  // Hover sur desktop uniquement - s'active uniquement sur la carte concernée
+  .game-card {
+    @include desktop {
+      &:hover .game-card-hover {
+        opacity: 1;
+        pointer-events: auto; // Active les interactions quand visible
+      }
+      
+      // Curseur pointer pour indiquer que c'est cliquable
+      .game-card-link-wrapper {
+        cursor: pointer;
+      }
+    }
+  }
+  
+  .game-card-hover-content {
+    padding: $spacing-md;
+    color: $text-primary;
+    text-align: center;
+    
+    p {
+      margin: $spacing-xs 0;
+      font-size: $font-size-sm;
+      line-height: 1.5; // WCAG: line-height suffisant
+    }
+    
+    strong {
+      font-weight: $font-weight-bold;
+      color: $accent-color;
+    }
+  }
+  
+  // Le bouton "Voir les détails" a été retiré - la carte entière est maintenant cliquable
 }
 
 // ============================================
@@ -763,24 +917,39 @@ main {
 // ============================================
 
 .page-list {
+  // Mobile-first: container fluide, puis max-width sur desktop
+  width: 100%;
   max-width: $container-width;
   margin: 0 auto;
-  padding: $spacing-2xl;
   
-  @include mobile {
-    padding: $spacing-md;
+  // Padding mobile-first (petit sur mobile, augmente progressivement)
+  padding: $spacing-md; // 16px sur mobile
+  
+  @include tablet {
+    padding: $spacing-lg; // 24px sur tablette
+  }
+  
+  @include desktop {
+    padding: $spacing-xl; // 32px sur desktop (réduit pour plus d'espace)
   }
   
   .articles {
+    // Mobile-first: 1 colonne, puis 2, puis 3 (comme Home)
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax($card-width, 1fr));
-    gap: $spacing-xl;
-    margin-bottom: $spacing-3xl;
+    grid-template-columns: 1fr; // Mobile: 1 colonne
+    gap: $spacing-md; // 16px sur mobile
     
-    @include mobile {
-      grid-template-columns: 1fr;
-      gap: $spacing-lg;
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr); // Tablette: 2 colonnes
+      gap: $spacing-lg; // 24px sur tablette
     }
+    
+    @include desktop {
+      grid-template-columns: repeat(3, 1fr); // Desktop: 3 colonnes
+      gap: $spacing-xl; // 32px sur desktop
+    }
+    
+    margin-bottom: $spacing-3xl;
   }
   
   .show-more-button {
@@ -802,10 +971,67 @@ main {
     }
   }
   
+  // Styles des cartes de jeu (mobile-first + WCAG) - identiques à Home
+  .game-card {
+    // Assurer que les cartes s'adaptent à la grille
+    width: 100%;
+    min-width: 0; // Permet au contenu de se rétrécir dans la grille
+    display: flex;
+    flex-direction: column;
+    position: relative; // IMPORTANT: pour contenir le hover en position absolue
+    overflow: hidden; // Empêche le hover de déborder
+    border-radius: $radius-md; // Coins arrondis pour la carte
+    
+    // Accessibilité: focus visible (WCAG 2.4.7)
+    &:focus-within {
+      outline: 2px solid $accent-color;
+      outline-offset: 2px;
+    }
+  }
+  
+  .game-card-default {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .game-card-image {
+    // Image responsive (mobile-first)
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9; // Ratio d'aspect moderne pour les images de jeu
+    object-fit: cover;
+    display: block; // Évite l'espace sous l'image
+  }
+  
+  .game-card-name {
+    // Typographie responsive (WCAG: texte lisible)
+    font-size: $font-size-base; // 16px base (WCAG minimum)
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: $spacing-sm 0;
+    line-height: 1.4; // WCAG: line-height suffisant pour la lisibilité
+    
+    @include tablet {
+      font-size: $font-size-lg; // 18px sur tablette
+    }
+    
+    @include desktop {
+      font-size: $font-size-xl; // 20px sur desktop
+    }
+    
+    // Accessibilité: texte qui ne déborde pas
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; // Max 2 lignes
+    -webkit-box-orient: vertical;
+  }
+  
   .game-card-platforms {
     display: flex;
     flex-wrap: wrap;
-    gap: $spacing-xs;
+    gap: $spacing-xs; // 4px gap (WCAG: espacement suffisant)
     align-items: center;
     justify-content: center;
     margin-top: $spacing-sm;
@@ -820,6 +1046,8 @@ main {
     .platform-icon-small {
       width: 20px;
       height: 20px;
+      min-width: 20px; // Évite le rétrécissement
+      min-height: 20px;
       object-fit: contain;
       display: inline-block;
       vertical-align: middle;
@@ -827,18 +1055,100 @@ main {
     
     .platform-name-small,
     .platform-name-fallback-small {
-      font-size: $font-size-xs;
+      font-size: $font-size-xs; // 12px (WCAG: minimum pour texte secondaire)
       color: $text-medium-gray;
       display: inline-block;
       vertical-align: middle;
     }
     
     .no-platforms {
-      font-size: $font-size-sm;
+      font-size: $font-size-sm; // 14px
       color: $text-medium-gray;
       display: inline-block;
     }
   }
+  
+  // Lien wrapper qui rend toute la carte cliquable
+  .game-card-link-wrapper {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    
+    // Focus visible (WCAG 2.4.7)
+    &:focus {
+      outline: 2px solid $accent-color;
+      outline-offset: 2px;
+      border-radius: $radius-md;
+    }
+  }
+  
+  .game-card-hover {
+    // État hover (seulement sur desktop pour éviter les problèmes tactiles)
+    @include desktop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-md;
+      z-index: 10; // S'assure que le hover est au-dessus du contenu
+      pointer-events: none; // Permet de cliquer à travers quand invisible
+    }
+    
+    // Sur mobile/tablette: pas d'overlay hover
+    @include mobile {
+      display: none;
+    }
+    
+    @include tablet {
+      display: none;
+    }
+  }
+  
+  // Hover sur desktop uniquement - s'active uniquement sur la carte concernée
+  .game-card {
+    @include desktop {
+      &:hover .game-card-hover {
+        opacity: 1;
+        pointer-events: auto; // Active les interactions quand visible
+      }
+      
+      // Curseur pointer pour indiquer que c'est cliquable
+      .game-card-link-wrapper {
+        cursor: pointer;
+      }
+    }
+  }
+  
+  .game-card-hover-content {
+    padding: $spacing-md;
+    color: $text-primary;
+    text-align: center;
+    
+    p {
+      margin: $spacing-xs 0;
+      font-size: $font-size-sm;
+      line-height: 1.5; // WCAG: line-height suffisant
+    }
+    
+    strong {
+      font-weight: $font-weight-bold;
+      color: $accent-color;
+    }
+  }
+  
+  // Le bouton "Voir les détails" a été retiré - la carte entière est maintenant cliquable
 }
 
 // Error message

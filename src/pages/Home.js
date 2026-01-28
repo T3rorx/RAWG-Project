@@ -69,20 +69,21 @@ export const Home = (argument = '') => {
 
       return `
         <article class="game-card" data-game-id="${gameId}">
-          <div class="game-card-default">
-            <img src="${image}" alt="${article.name}" class="game-card-image" />
-            <h1 class="game-card-name">${article.name}</h1>
-            <div class="game-card-platforms">${platformIcons}</div>
-          </div>
-          <div class="game-card-hover">
-            <div class="game-card-hover-content">
-              <p class="game-card-released"><strong>Release Date:</strong> ${released}</p>
-              <p class="game-card-publisher"><strong>Publisher:</strong> ${publishers}</p>
-              <p class="game-card-genres"><strong>Genres:</strong> ${genres}</p>
-              <p class="game-card-rating"><strong>Rating:</strong> ${rating}/5 (${ratingsCount} votes)</p>
+          <a href="#pagedetail/${gameId}" class="game-card-link-wrapper">
+            <div class="game-card-default">
+              <img src="${image}" alt="${article.name}" class="game-card-image" />
+              <h1 class="game-card-name">${article.name}</h1>
+              <div class="game-card-platforms">${platformIcons}</div>
             </div>
-          </div>
-          <a href="#pagedetail/${gameId}" class="game-card-link">Voir les détails</a>
+            <div class="game-card-hover">
+              <div class="game-card-hover-content">
+                <p class="game-card-released"><strong>Release Date:</strong> ${released}</p>
+                <p class="game-card-publisher"><strong>Publisher:</strong> ${publishers}</p>
+                <p class="game-card-genres"><strong>Genres:</strong> ${genres}</p>
+                <p class="game-card-rating"><strong>Rating:</strong> ${rating}/5 (${ratingsCount} votes)</p>
+              </div>
+            </div>
+          </a>
         </article>
       `;
     });
@@ -96,7 +97,7 @@ export const Home = (argument = '') => {
   const render = () => {
     pageContent.innerHTML = `
       <section class="home">
-        <div class="articles grid grid-cols-3 gap-6">
+        <div class="articles">
           <div class="text-center text-gray-400">Loading...</div>
         </div>
       </section>
