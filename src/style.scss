@@ -417,6 +417,34 @@ main {
       margin-top: $spacing-xs;
     }
     
+    // Liens internes (développeur, éditeur, genre, tag) - Animation obligatoire
+    .detail-link {
+      color: $accent-color;
+      text-decoration: none;
+      position: relative;
+      display: inline-block;
+      
+      // Animation du soulignement au hover (obligatoire - premier exemple Codepen)
+      &::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: $accent-color;
+        transition: width 0.3s ease;
+      }
+      
+      &:hover::after {
+        width: 100%;
+      }
+      
+      &:hover {
+        color: $accent-color;
+      }
+    }
+    
     .platform-link {
       display: inline-flex;
       align-items: center;
