@@ -9,6 +9,15 @@ export const PageDetail = (argument) => {
     const cleanedArgument = argument.trim().replace(/\s+/g, "-");
 
     const displayGame = (gameData) => {
+      // Log complet des données reçues pour debug
+      console.log('\n🎮 DONNÉES REÇUES POUR AFFICHAGE:');
+      console.log('-'.repeat(80));
+      console.log('  name:', gameData.name);
+      console.log('  movies:', gameData.movies?.length || 0, gameData.movies);
+      console.log('  movies_count:', gameData.movies_count);
+      console.log('  screenshots_count:', gameData.screenshots_count);
+      console.log('  short_screenshots:', gameData.short_screenshots?.length || 0);
+      
       const {
         name,
         released,
@@ -28,7 +37,22 @@ export const PageDetail = (argument) => {
         movies = [],
         stores = [],
         id,
-        screenshots_count = 0
+        screenshots_count = 0,
+        movies_count = 0,
+        metacritic,
+        metacritic_url,
+        playtime,
+        achievements_count,
+        reddit_url,
+        reddit_name,
+        reddit_description,
+        reddit_logo,
+        alternative_names = [],
+        ratings = {},
+        reactions = {},
+        added_by_status = {},
+        esrb_rating,
+        parent_platforms = []
       } = gameData;
 
       const articleDOM = document.querySelector(".page-detail");
@@ -265,26 +289,81 @@ export const PageDetail = (argument) => {
       // Trailer (première vidéo) - affiché seulement s'il existe
       const trailerContainer = articleDOM.querySelector(".game-trailer");
       const trailerSection = articleDOM.querySelector(".game-trailer-section");
+      
+      console.log('\n🎬 ANALYSE TRAILER:');
+      console.log('  movies.length:', movies.length);
+      console.log('  movies_count:', movies_count);
+      if (movies.length > 0) {
+        console.log('  movies[0]:', movies[0]);
+        console.log('  movies[0].data:', movies[0].data);
+        console.log('  movies[0].data?.max:', movies[0].data?.max);
+        console.log('  movies[0].data?.[480]:', movies[0].data && movies[0].data[480]);
+      }
+      
       if (trailerContainer) {
-        if (movies.length > 0 && movies[0].data?.max) {
+        // Chercher une vidéo avec différentes qualités
+        let videoUrl = null;
+        let videoName = 'Trailer';
+        
+        if (movies.length > 0) {
           const firstMovie = movies[0];
+          videoName = firstMovie.name || 'Trailer';
+          
+          // Essayer différentes qualités dans l'ordre de préférence
+          if (firstMovie.data?.max) {
+            videoUrl = firstMovie.data.max;
+          } else if (firstMovie.data?.high) {
+            videoUrl = firstMovie.data.high;
+          } else if (firstMovie.data?.medium) {
+            videoUrl = firstMovie.data.medium;
+          } else if (firstMovie.data?.low) {
+            videoUrl = firstMovie.data.low;
+          } else if (firstMovie.data && firstMovie.data[480]) {
+            videoUrl = firstMovie.data[480];
+          }
+          
+          // Si pas de data mais qu'il y a un preview
+          if (!videoUrl && firstMovie.preview) {
+            videoUrl = firstMovie.preview;
+          }
+        }
+        
+        if (videoUrl) {
+          console.log('  ✅ Vidéo trouvée:', videoUrl);
           trailerContainer.innerHTML = `
-            <video class="trailer-video" controls>
-              <source src="${firstMovie.data.max}" type="video/mp4">
+            <video class="trailer-video" controls preload="metadata">
+              <source src="${videoUrl}" type="video/mp4">
               Votre navigateur ne supporte pas la lecture de vidéos.
             </video>
+            <p class="trailer-name">${videoName}</p>
           `;
           trailerContainer.style.display = 'block';
+          if (trailerSection) trailerSection.style.display = 'block';
         } else {
+          console.log('  ❌ Aucune URL vidéo valide trouvée');
           trailerContainer.style.display = 'none';
+          if (trailerSection) trailerSection.style.display = 'none';
         }
       }
-      // Masquer toute la section TRAILER si pas de vidéo
-      if (trailerSection) {
-        if (!movies.length || !movies[0].data?.max) {
-          trailerSection.style.display = 'none';
-        } else {
-          trailerSection.style.display = 'block';
+      
+      // Si movies_count > 0 mais pas de movies, essayer de récupérer
+      if (movies_count > 0 && (!movies || movies.length === 0)) {
+        console.log('  📥 Tentative de récupération des movies...');
+        const gameId = id || argument;
+        if (gameId) {
+          fetch(`${API_BASE_URL}/games/${gameId}/movies?key=${API_KEY}`)
+            .then(response => response.json())
+            .then(moviesData => {
+              console.log('  ✅ Movies récupérés:', moviesData.results?.length || 0);
+              if (moviesData.results && moviesData.results.length > 0) {
+                // Réafficher avec les movies récupérés
+                gameData.movies = moviesData.results;
+                displayGame(gameData);
+              }
+            })
+            .catch(error => {
+              console.error('  ❌ Erreur récupération movies:', error);
+            });
         }
       }
 
@@ -736,54 +815,167 @@ export const PageDetail = (argument) => {
     };
 
     const fetchGame = (url, argument) => {
-      fetch(`${url}/${argument}?key=${API_KEY}`)
+      const gameId = argument;
+      
+      // Récupérer les données principales du jeu
+      fetch(`${url}/${gameId}?key=${API_KEY}`)
         .then((response) => response.json())
         .then((responseData) => {
-          // Debug: Afficher toutes les données disponibles
-          console.log('🔍 TOUTES LES DONNÉES API DISPONIBLES:', responseData);
-          console.log('📋 Clés disponibles:', Object.keys(responseData).sort());
+          // ============================================
+          // CHECKLIST COMPLÈTE DES DONNÉES API RAWG
+          // ============================================
+          console.log('\n' + '='.repeat(80));
+          console.log('📊 CHECKLIST COMPLÈTE DES DONNÉES API RAWG');
+          console.log('='.repeat(80));
           
-          // Vérifier les champs importants
-          console.log('\n✅ Champs utilisés:');
-          console.log('  - name:', responseData.name);
-          console.log('  - description:', responseData.description ? 'OUI' : 'NON');
-          console.log('  - background_image:', responseData.background_image ? 'OUI' : 'NON');
-          console.log('  - released:', responseData.released);
-          console.log('  - developers:', responseData.developers?.length || 0);
-          console.log('  - publishers:', responseData.publishers?.length || 0);
-          console.log('  - platforms:', responseData.platforms?.length || 0);
-          console.log('  - genres:', responseData.genres?.length || 0);
-          console.log('  - tags:', responseData.tags?.length || 0);
-          console.log('  - website:', responseData.website ? 'OUI' : 'NON');
-          console.log('  - rating:', responseData.rating);
-          console.log('  - ratings_count:', responseData.ratings_count);
-          console.log('  - short_screenshots:', responseData.short_screenshots?.length || 0);
-          console.log('  - movies:', responseData.movies?.length || 0);
-          console.log('  - stores:', responseData.stores?.length || 0);
+          // Liste complète des champs selon la documentation RAWG API
+          const allFields = {
+            // Identifiants
+            'id': responseData.id,
+            'slug': responseData.slug,
+            'name': responseData.name,
+            'name_original': responseData.name_original,
+            
+            // Description et contenu
+            'description': responseData.description,
+            'alternative_names': responseData.alternative_names,
+            
+            // Images
+            'background_image': responseData.background_image,
+            'background_image_additional': responseData.background_image_additional,
+            
+            // Dates
+            'released': responseData.released,
+            'tba': responseData.tba,
+            'updated': responseData.updated,
+            
+            // Métacritique
+            'metacritic': responseData.metacritic,
+            'metacritic_platforms': responseData.metacritic_platforms,
+            'metacritic_url': responseData.metacritic_url,
+            
+            // Ratings
+            'rating': responseData.rating,
+            'rating_top': responseData.rating_top,
+            'ratings': responseData.ratings,
+            'ratings_count': responseData.ratings_count,
+            
+            // Réactions et statut
+            'reactions': responseData.reactions,
+            'added': responseData.added,
+            'added_by_status': responseData.added_by_status,
+            
+            // Temps de jeu
+            'playtime': responseData.playtime,
+            
+            // Compteurs
+            'screenshots_count': responseData.screenshots_count,
+            'movies_count': responseData.movies_count,
+            'creators_count': responseData.creators_count,
+            'achievements_count': responseData.achievements_count,
+            'parent_achievements_count': responseData.parent_achievements_count,
+            'suggestions_count': responseData.suggestions_count,
+            'parents_count': responseData.parents_count,
+            'additions_count': responseData.additions_count,
+            'game_series_count': responseData.game_series_count,
+            
+            // Reddit
+            'reddit_url': responseData.reddit_url,
+            'reddit_name': responseData.reddit_name,
+            'reddit_description': responseData.reddit_description,
+            'reddit_logo': responseData.reddit_logo,
+            'reddit_count': responseData.reddit_count,
+            
+            // Autres réseaux
+            'twitch_count': responseData.twitch_count,
+            'youtube_count': responseData.youtube_count,
+            'reviews_text_count': responseData.reviews_text_count,
+            
+            // Site web
+            'website': responseData.website,
+            
+            // ESRB Rating
+            'esrb_rating': responseData.esrb_rating,
+            
+            // Collections
+            'platforms': responseData.platforms,
+            'parent_platforms': responseData.parent_platforms,
+            'stores': responseData.stores,
+            'developers': responseData.developers,
+            'publishers': responseData.publishers,
+            'genres': responseData.genres,
+            'tags': responseData.tags,
+            'short_screenshots': responseData.short_screenshots,
+            'movies': responseData.movies,
+          };
           
-          // Vérifier les champs potentiellement manquants
-          console.log('\n⚠️  Champs potentiellement manquants:');
-          const potentiallyMissing = [
-            'background_image_additional', 'metacritic', 'metacritic_url',
-            'esrb_rating', 'playtime', 'achievements_count', 'reddit_url',
-            'reddit_name', 'reddit_description', 'reddit_logo', 'alternative_names',
-            'screenshots_count', 'movies_count', 'creators_count', 'ratings',
-            'reactions', 'added_by_status', 'parent_platforms'
-          ];
+          // Afficher tous les champs avec leur statut
+          console.log('\n📋 TOUS LES CHAMPS DISPONIBLES:');
+          console.log('-'.repeat(80));
           
-          potentiallyMissing.forEach(field => {
-            if (responseData[field] !== undefined && responseData[field] !== null) {
-              if (Array.isArray(responseData[field])) {
-                console.log(`  ⚠ ${field}: [${responseData[field].length} éléments]`);
-              } else if (typeof responseData[field] === 'object') {
-                console.log(`  ⚠ ${field}: [objet]`, responseData[field]);
-              } else {
-                console.log(`  ⚠ ${field}:`, responseData[field]);
+          Object.entries(allFields).forEach(([field, value]) => {
+            const status = value !== undefined && value !== null;
+            let displayValue = '';
+            
+            if (!status) {
+              displayValue = '❌ NON DISPONIBLE';
+            } else if (Array.isArray(value)) {
+              displayValue = `✅ [${value.length} éléments]`;
+              if (value.length > 0 && value.length <= 3) {
+                displayValue += ` ${JSON.stringify(value).substring(0, 100)}`;
               }
+            } else if (typeof value === 'object') {
+              displayValue = `✅ [objet] ${Object.keys(value).length} propriétés`;
+              if (Object.keys(value).length <= 5) {
+                displayValue += ` ${JSON.stringify(value).substring(0, 150)}`;
+              }
+            } else if (typeof value === 'string' && value.length > 50) {
+              displayValue = `✅ ${value.substring(0, 50)}...`;
+            } else {
+              displayValue = `✅ ${value}`;
             }
+            
+            console.log(`  ${status ? '✅' : '❌'} ${field.padEnd(30)} : ${displayValue}`);
           });
           
-          displayGame(responseData);
+          // Vérifier spécifiquement les movies/trailers
+          console.log('\n🎬 ANALYSE DES MOVIES/TRAILERS:');
+          console.log('-'.repeat(80));
+          console.log('  movies_count:', responseData.movies_count);
+          console.log('  movies (dans réponse):', responseData.movies?.length || 0);
+          if (responseData.movies && responseData.movies.length > 0) {
+            responseData.movies.forEach((movie, index) => {
+              console.log(`    Movie ${index + 1}:`, {
+                name: movie.name,
+                preview: movie.preview,
+                data: movie.data ? Object.keys(movie.data) : 'N/A'
+              });
+            });
+          } else {
+            console.log('  ⚠️  Aucun movie dans la réponse principale');
+            console.log('  💡 Les movies doivent être récupérés via: /games/{id}/movies');
+          }
+          
+          // Si pas de movies dans la réponse, les récupérer séparément
+          if ((!responseData.movies || responseData.movies.length === 0) && responseData.movies_count > 0) {
+            console.log('\n📥 Récupération des movies via endpoint séparé...');
+            fetch(`${API_BASE_URL}/games/${gameId}/movies?key=${API_KEY}`)
+              .then(response => response.json())
+              .then(moviesData => {
+                console.log('  ✅ Movies récupérés:', moviesData.results?.length || 0);
+                if (moviesData.results && moviesData.results.length > 0) {
+                  responseData.movies = moviesData.results;
+                  console.log('  📝 Movies ajoutés à responseData');
+                }
+                displayGame(responseData);
+              })
+              .catch(error => {
+                console.error('  ❌ Erreur récupération movies:', error);
+                displayGame(responseData);
+              });
+          } else {
+            displayGame(responseData);
+          }
         })
         .catch((error) => {
           console.error('Erreur lors du chargement du jeu:', error);

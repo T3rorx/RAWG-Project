@@ -549,6 +549,14 @@ main {
       max-width: 922px;
       height: auto;
       border-radius: $radius-md;
+      display: block;
+    }
+    
+    .trailer-name {
+      margin-top: $spacing-sm;
+      font-size: $font-size-sm;
+      color: $text-medium-gray;
+      text-align: center;
     }
   }
 }
