@@ -789,13 +789,27 @@ main {
     -webkit-box-orient: vertical;
   }
   
+  // Wrapper pour positionner les plateformes sur une seule ligne à droite
+  .game-card-platforms-wrapper {
+    display: flex;
+    justify-content: flex-end; // Tout aligné à droite
+    align-items: center;
+    width: 100%;
+    margin-top: $spacing-sm;
+    min-height: 24px; // Hauteur minimale pour éviter les sauts de layout
+  }
+  
   .game-card-platforms {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; // Une seule ligne, pas de retour à la ligne
     gap: $spacing-xs; // 4px gap (WCAG: espacement suffisant)
     align-items: center;
-    justify-content: center;
-    margin-top: $spacing-sm;
+    justify-content: flex-end; // Aligné à droite
+    
+    // Plateformes à droite (seule option maintenant)
+    &.game-card-platforms-right {
+      justify-content: flex-end;
+    }
     
     // S'assurer que les images et spans sont inline
     img,
@@ -826,6 +840,37 @@ main {
       font-size: $font-size-sm; // 14px
       color: $text-medium-gray;
       display: inline-block;
+    }
+  }
+  
+  // Étoiles de notation
+  .game-card-stars {
+    margin-top: $spacing-xs;
+    text-align: center;
+    width: 100%;
+    
+    .star-rating {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: $font-size-sm; // 14px pour un rendu plus compact
+      line-height: 1;
+      width: 100%;
+      
+      .stars-filled {
+        color: #fbbf24; // yellow-400 (couleur des étoiles pleines)
+      }
+      
+      .star-half {
+        color: #fbbf24; // yellow-400
+        opacity: 0.5; // Pour la demi-étoile
+      }
+      
+      .stars-empty {
+        color: $text-medium-gray; // Étoiles vides en gris
+        opacity: 0.4; // Légèrement plus transparentes
+      }
     }
   }
   
@@ -906,6 +951,29 @@ main {
     strong {
       font-weight: $font-weight-bold;
       color: $accent-color;
+    }
+    
+    // Étoiles dans le hover
+    .game-card-rating {
+      .star-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-size: $font-size-sm;
+        margin-left: $spacing-xs;
+        
+        .stars-filled {
+          color: #fbbf24; // yellow-400
+        }
+        
+        .star-half {
+          color: #fbbf24;
+        }
+        
+        .stars-empty {
+          color: $text-medium-gray;
+        }
+      }
     }
   }
   
@@ -1028,13 +1096,27 @@ main {
     -webkit-box-orient: vertical;
   }
   
+  // Wrapper pour positionner les plateformes sur une seule ligne à droite
+  .game-card-platforms-wrapper {
+    display: flex;
+    justify-content: flex-end; // Tout aligné à droite
+    align-items: center;
+    width: 100%;
+    margin-top: $spacing-sm;
+    min-height: 24px; // Hauteur minimale pour éviter les sauts de layout
+  }
+  
   .game-card-platforms {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; // Une seule ligne, pas de retour à la ligne
     gap: $spacing-xs; // 4px gap (WCAG: espacement suffisant)
     align-items: center;
-    justify-content: center;
-    margin-top: $spacing-sm;
+    justify-content: flex-end; // Aligné à droite
+    
+    // Plateformes à droite (seule option maintenant)
+    &.game-card-platforms-right {
+      justify-content: flex-end;
+    }
     
     // S'assurer que les images et spans sont inline
     img,
@@ -1065,6 +1147,37 @@ main {
       font-size: $font-size-sm; // 14px
       color: $text-medium-gray;
       display: inline-block;
+    }
+  }
+  
+  // Étoiles de notation
+  .game-card-stars {
+    margin-top: $spacing-xs;
+    text-align: center;
+    width: 100%;
+    
+    .star-rating {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: $font-size-sm; // 14px pour un rendu plus compact
+      line-height: 1;
+      width: 100%;
+      
+      .stars-filled {
+        color: #fbbf24; // yellow-400 (couleur des étoiles pleines)
+      }
+      
+      .star-half {
+        color: #fbbf24; // yellow-400
+        opacity: 0.5; // Pour la demi-étoile
+      }
+      
+      .stars-empty {
+        color: $text-medium-gray; // Étoiles vides en gris
+        opacity: 0.4; // Légèrement plus transparentes
+      }
     }
   }
   
@@ -1145,6 +1258,29 @@ main {
     strong {
       font-weight: $font-weight-bold;
       color: $accent-color;
+    }
+    
+    // Étoiles dans le hover
+    .game-card-rating {
+      .star-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-size: $font-size-sm;
+        margin-left: $spacing-xs;
+        
+        .stars-filled {
+          color: #fbbf24; // yellow-400
+        }
+        
+        .star-half {
+          color: #fbbf24;
+        }
+        
+        .stars-empty {
+          color: $text-medium-gray;
+        }
+      }
     }
   }
   

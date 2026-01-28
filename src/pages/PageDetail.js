@@ -131,11 +131,24 @@ export const PageDetail = (argument) => {
       }
 
       // Platforms (liens cliquables avec logos) - affiché seulement s'il existe
+      // IMPORTANT: Dédupliquer les plateformes pour éviter les doublons
       const platformsElement = articleDOM.querySelector(".game-platforms");
       const platformsItem = platformsElement ? platformsElement.closest('.metadata-item') : null;
       if (platformsElement) {
         if (platforms.length > 0) {
-          const platformLinks = platforms.map(p => {
+          // Dédupliquer les plateformes en utilisant l'ID comme clé principale
+          const uniquePlatforms = new Map();
+          platforms.forEach(p => {
+            const platformId = p.platform.id;
+            const platformSlug = p.platform.slug || p.platform.name?.toLowerCase().replace(/\s+/g, '-');
+            // Utiliser l'ID comme clé principale, et le slug normalisé comme clé secondaire
+            const key = platformId || platformSlug?.toLowerCase().replace(/\s+/g, '-');
+            if (key && !uniquePlatforms.has(key)) {
+              uniquePlatforms.set(key, p);
+            }
+          });
+          
+          const platformLinks = Array.from(uniquePlatforms.values()).map(p => {
             const platformId = p.platform.id || p.platform.slug;
             const platformSlug = p.platform.slug || p.platform.name?.toLowerCase().replace(/\s+/g, '-');
             const platformName = getPlatformName(p.platform.name, platformSlug);
@@ -407,18 +420,33 @@ export const PageDetail = (argument) => {
                 similarGamesContainer.innerHTML = similarGames.map(game => {
                   const gameId = game.id || game.slug;
                   const imageUrl = game.background_image || 'https://placehold.co/288x193';
-                  // Générer les logos de plateformes
-                  const platformIcons = game.platforms?.map(p => {
+                  
+                  // Générer les logos de plateformes (sans doublons)
+                  // Utiliser l'ID de la plateforme comme clé principale
+                  const uniquePlatforms = new Map();
+                  game.platforms?.forEach(p => {
+                    const platformId = p.platform.id;
                     const platformSlug = p.platform.slug || p.platform.name?.toLowerCase().replace(/\s+/g, '-');
-                    const platformName = getPlatformName(p.platform.name, platformSlug);
-                    const iconUrl = getPlatformIcon(platformSlug);
-                    
-                    if (!iconUrl) {
-                      return `<span class="platform-name-small" title="${platformName}">${platformName}</span>`;
+                    // Utiliser l'ID comme clé principale, et le slug normalisé comme clé secondaire
+                    const key = platformId || platformSlug?.toLowerCase().replace(/\s+/g, '-');
+                    if (key && !uniquePlatforms.has(key)) {
+                      uniquePlatforms.set(key, p);
                     }
-                    
-                    return `<img src="${iconUrl}" alt="${platformName}" class="platform-icon-small" title="${platformName}" onerror="this.style.display='none'; this.nextElementSibling?.style.display='inline';" /><span class="platform-name-fallback-small" style="display: none;">${platformName}</span>`;
-                  }).join('') || '<span class="no-platforms">N/A</span>';
+                  });
+                  
+                  const platformIcons = uniquePlatforms.size > 0
+                    ? Array.from(uniquePlatforms.values()).map(p => {
+                        const platformSlug = p.platform.slug || p.platform.name?.toLowerCase().replace(/\s+/g, '-');
+                        const platformName = getPlatformName(p.platform.name, platformSlug);
+                        const iconUrl = getPlatformIcon(platformSlug);
+                        
+                        if (!iconUrl) {
+                          return `<span class="platform-name-small" title="${platformName}">${platformName}</span>`;
+                        }
+                        
+                        return `<img src="${iconUrl}" alt="${platformName}" class="platform-icon-small" title="${platformName}" onerror="this.style.display='none'; this.nextElementSibling?.style.display='inline';" /><span class="platform-name-fallback-small" style="display: none;">${platformName}</span>`;
+                      }).join('')
+                    : '<span class="no-platforms">N/A</span>';
                   return `
                     <article class="similar-game-card">
                       <a href="#pagedetail/${gameId}" class="similar-game-link">
