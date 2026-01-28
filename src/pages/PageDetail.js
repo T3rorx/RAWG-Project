@@ -634,32 +634,68 @@ export const PageDetail = (argument) => {
         document.body.style.overflow = 'hidden';
       };
 
-      // Récupérer TOUS les screenshots (pas seulement short_screenshots)
+      // Récupérer TOUS les screenshots (pas seulement short_screenshots) avec pagination
       const gameId = id || argument;
       const fetchAllScreenshots = () => {
         if (gameId && screenshots_count > 0) {
-          return fetch(`${API_BASE_URL}/games/${gameId}/screenshots?key=${API_KEY}`)
-            .then(response => response.json())
-            .then(screenshotsData => {
-              console.log('📸 Screenshots API response:', screenshotsData);
-              if (screenshotsData.results && screenshotsData.results.length > 0) {
-                const screenshots = screenshotsData.results;
-                console.log(`📸 ${screenshots.length} screenshots récupérés`);
-                // Mettre à jour allScreenshots avec tous les screenshots
-                allScreenshots = screenshots.map(s => s.image || s);
-                displayScreenshots(screenshots);
-                return screenshots;
-              } else {
-                console.log('📸 Aucun screenshot trouvé');
-                displayScreenshots([]);
-                return [];
-              }
-            })
-            .catch(error => {
-              console.error('Erreur lors du chargement des screenshots:', error);
-              displayScreenshots([]);
-              return [];
-            });
+          const allScreenshotsArray = [];
+          
+          // Fonction récursive pour récupérer toutes les pages
+          const fetchScreenshotsPage = (url) => {
+            return fetch(url)
+              .then(response => response.json())
+              .then(screenshotsData => {
+                console.log('📸 Screenshots API response:', {
+                  count: screenshotsData.count,
+                  results: screenshotsData.results?.length || 0,
+                  next: screenshotsData.next ? 'OUI' : 'NON'
+                });
+                
+                if (screenshotsData.results && screenshotsData.results.length > 0) {
+                  allScreenshotsArray.push(...screenshotsData.results);
+                  console.log(`📸 Total accumulé: ${allScreenshotsArray.length} / ${screenshots_count}`);
+                  
+                  // Si il y a une page suivante, la récupérer
+                  if (screenshotsData.next) {
+                    console.log('📸 Récupération de la page suivante...');
+                    return fetchScreenshotsPage(screenshotsData.next);
+                  } else {
+                    // Tous les screenshots récupérés
+                    console.log(`📸 ✅ Tous les screenshots récupérés: ${allScreenshotsArray.length}`);
+                    // Mettre à jour allScreenshots avec tous les screenshots
+                    allScreenshots = allScreenshotsArray.map(s => s.image || s);
+                    displayScreenshots(allScreenshotsArray);
+                    return allScreenshotsArray;
+                  }
+                } else {
+                  console.log('📸 Aucun screenshot trouvé dans cette page');
+                  if (allScreenshotsArray.length > 0) {
+                    allScreenshots = allScreenshotsArray.map(s => s.image || s);
+                    displayScreenshots(allScreenshotsArray);
+                    return allScreenshotsArray;
+                  } else {
+                    displayScreenshots([]);
+                    return [];
+                  }
+                }
+              })
+              .catch(error => {
+                console.error('Erreur lors du chargement des screenshots:', error);
+                // Afficher ce qu'on a récupéré jusqu'à présent
+                if (allScreenshotsArray.length > 0) {
+                  allScreenshots = allScreenshotsArray.map(s => s.image || s);
+                  displayScreenshots(allScreenshotsArray);
+                  return allScreenshotsArray;
+                } else {
+                  displayScreenshots([]);
+                  return [];
+                }
+              });
+          };
+          
+          // Commencer par la première page
+          const firstPageUrl = `${API_BASE_URL}/games/${gameId}/screenshots?key=${API_KEY}`;
+          return fetchScreenshotsPage(firstPageUrl);
         } else {
           displayScreenshots([]);
           return Promise.resolve([]);
