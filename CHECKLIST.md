@@ -151,7 +151,7 @@
 
 ### Niveau 2 - Bonus avancé
 - [ ] Template Screenshots affichant l'ensemble des screenshots d'un jeu
-- [ ] Slider d'images au clic sur une image du template Screenshots
+- [x] Slider d'images au clic sur une image du template Screenshots
 - [ ] Filtres supplémentaires sur PageList (à gauche) :
   - [ ] Par genre
   - [ ] Par plateforme

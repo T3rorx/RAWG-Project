@@ -288,32 +288,73 @@ export const PageDetail = (argument) => {
         }
       }
 
-      // Screenshots (4 premiers) - affiché seulement s'il existe
+      // Screenshots - Afficher les 3 premiers + un bouton pour voir tous les screenshots
       // Si short_screenshots est vide mais qu'il y a des screenshots, on fait une requête séparée
       const screenshotsContainer = articleDOM.querySelector(".game-screenshots");
       const screenshotsSection = articleDOM.querySelector(".game-screenshots-section");
       
+      // Stocker tous les screenshots pour le modal
+      let allScreenshots = [];
+      
       const displayScreenshots = (screenshotsArray) => {
+        // Normaliser les screenshots (s'assurer qu'on a des objets avec .image ou des URLs)
+        const normalizedScreenshots = screenshotsArray.map(s => {
+          if (typeof s === 'string') return s;
+          return s.image || s;
+        });
+        
+        // Mettre à jour allScreenshots avec TOUS les screenshots
+        allScreenshots = normalizedScreenshots;
+        
         if (screenshotsContainer) {
           if (screenshotsArray.length > 0) {
-            // Prendre exactement 4 screenshots (ou moins si disponible)
-            const screenshots = screenshotsArray.slice(0, 4);
-            console.log(`📸 Affichage de ${screenshots.length} screenshots (sur ${screenshotsArray.length} disponibles)`);
-            screenshotsContainer.innerHTML = screenshots.map((screenshot, index) => {
+            // Afficher les 3 premiers screenshots
+            const firstThree = screenshotsArray.slice(0, 3);
+            const totalCount = screenshotsArray.length;
+            
+            let screenshotsHTML = firstThree.map((screenshot, index) => {
               const imageUrl = screenshot.image || screenshot;
-              console.log(`  ${index + 1}. ${imageUrl}`);
-              return `<img src="${imageUrl}" alt="Screenshot ${index + 1}" class="screenshot-image" onerror="console.error('Erreur chargement screenshot ${index + 1}:', this.src); this.style.display='none';" />`;
+              return `<img src="${imageUrl}" alt="Screenshot ${index + 1}" class="screenshot-image" data-index="${index}" onerror="console.error('Erreur chargement screenshot ${index + 1}:', this.src); this.style.display='none';" />`;
             }).join('');
             
-            // Vérifier que toutes les images sont bien dans le DOM
-            setTimeout(() => {
-              const images = screenshotsContainer.querySelectorAll('.screenshot-image');
-              console.log(`📸 Images dans le DOM: ${images.length}`);
-              images.forEach((img, i) => {
-                console.log(`  Image ${i + 1}: ${img.src} - loaded: ${img.complete}, naturalWidth: ${img.naturalWidth}`);
+            // Ajouter le bouton/template pour voir tous les screenshots à la place de la 4ème image
+            // Afficher le bouton même s'il y a exactement 3 screenshots (pour permettre de les voir en grand)
+            if (totalCount >= 3) {
+              screenshotsHTML += `
+                <div class="screenshot-view-all" data-total="${totalCount}">
+                  <div class="screenshot-view-all-content">
+                    <svg class="screenshot-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z" fill="white"/>
+                    </svg>
+                    ${totalCount > 3 ? `<span class="screenshot-count">+${totalCount - 3}</span>` : ''}
+                    <span class="screenshot-label">Voir tous</span>
+                  </div>
+                </div>
+              `;
+            }
+            
+            screenshotsContainer.innerHTML = screenshotsHTML;
+            screenshotsContainer.style.display = 'grid';
+            
+            // Ajouter l'événement click sur le bouton "Voir tous"
+            const viewAllButton = screenshotsContainer.querySelector('.screenshot-view-all');
+            if (viewAllButton) {
+              viewAllButton.addEventListener('click', () => {
+                // Ouvrir le modal en commençant par le 4ème screenshot (index 3) ou le premier si moins de 4
+                const startIndex = totalCount > 3 ? 3 : 0;
+                openScreenshotsModal(allScreenshots, startIndex);
               });
-            }, 1000);
-            screenshotsContainer.style.display = 'grid'; // Utiliser grid au lieu de block pour la grille 2x2
+            }
+            
+            // Ajouter les événements click sur les 3 premières images
+            const screenshotImages = screenshotsContainer.querySelectorAll('.screenshot-image');
+            screenshotImages.forEach((img, index) => {
+              img.style.cursor = 'pointer';
+              img.addEventListener('click', () => {
+                // Ouvrir le modal avec l'index de l'image cliquée
+                openScreenshotsModal(allScreenshots, index);
+              });
+            });
           } else {
             screenshotsContainer.style.display = 'none';
           }
@@ -327,34 +368,244 @@ export const PageDetail = (argument) => {
           }
         }
       };
+      
+      // Fonction pour ouvrir le modal de screenshots
+      const openScreenshotsModal = (screenshots, startIndex = 0) => {
+        if (!screenshots || screenshots.length === 0) return;
+        
+        // Normaliser les screenshots (s'assurer que ce sont des URLs)
+        const normalizedScreenshots = screenshots.map(s => typeof s === 'string' ? s : (s.image || s));
+        
+        // Créer ou récupérer le modal
+        let modal = document.querySelector('.screenshots-modal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.className = 'screenshots-modal';
+          modal.innerHTML = `
+            <div class="screenshots-modal-overlay"></div>
+            <div class="screenshots-modal-content">
+              <button class="screenshots-modal-close" aria-label="Fermer">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="screenshots-modal-nav screenshots-modal-prev" aria-label="Précédent">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="screenshots-modal-nav screenshots-modal-next" aria-label="Suivant">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="screenshots-modal-image-container">
+                <img class="screenshots-modal-image" src="" alt="Screenshot" />
+              </div>
+              <div class="screenshots-modal-counter">
+                <span class="screenshots-modal-current">1</span> / <span class="screenshots-modal-total">1</span>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+          
+          // Gestionnaires d'événements (créés une seule fois)
+          const closeBtn = modal.querySelector('.screenshots-modal-close');
+          const overlay = modal.querySelector('.screenshots-modal-overlay');
+          const prevBtn = modal.querySelector('.screenshots-modal-prev');
+          const nextBtn = modal.querySelector('.screenshots-modal-next');
+          const imageEl = modal.querySelector('.screenshots-modal-image');
+          const currentEl = modal.querySelector('.screenshots-modal-current');
+          const totalEl = modal.querySelector('.screenshots-modal-total');
+          
+          // Fermer le modal
+          const closeModal = () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+          };
+          
+          // Navigation clavier (gestionnaire global)
+          if (!modal._keydownHandler) {
+            const handleKeydown = (e) => {
+              if (!modal.classList.contains('active')) return;
+              const currentScreenshots = modal._screenshots || [];
+              let currentIdx = modal._currentIndex || 0;
+              
+              if (e.key === 'Escape') {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+              } else if (e.key === 'ArrowLeft' && currentScreenshots.length > 0) {
+                currentIdx = currentIdx <= 0 ? currentScreenshots.length - 1 : currentIdx - 1;
+                modal._updateImage(currentIdx);
+              } else if (e.key === 'ArrowRight' && currentScreenshots.length > 0) {
+                currentIdx = currentIdx >= currentScreenshots.length - 1 ? 0 : currentIdx + 1;
+                modal._updateImage(currentIdx);
+              }
+            };
+            modal._keydownHandler = handleKeydown;
+            document.addEventListener('keydown', handleKeydown);
+          }
+          
+          // Swipe sur mobile (ajouté une seule fois)
+          if (!imageEl._hasTouchListeners) {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            const handleTouchStart = (e) => {
+              touchStartX = e.changedTouches[0].screenX;
+            };
+            
+            const handleTouchEnd = (e) => {
+              touchEndX = e.changedTouches[0].screenX;
+              const currentScreenshots = modal._screenshots || [];
+              let currentIdx = modal._currentIndex || 0;
+              const swipeThreshold = 50;
+              const diff = touchStartX - touchEndX;
+              
+              if (Math.abs(diff) > swipeThreshold && currentScreenshots.length > 0) {
+                if (diff > 0) {
+                  // Swipe gauche (suivant)
+                  currentIdx = currentIdx >= currentScreenshots.length - 1 ? 0 : currentIdx + 1;
+                } else {
+                  // Swipe droite (précédent)
+                  currentIdx = currentIdx <= 0 ? currentScreenshots.length - 1 : currentIdx - 1;
+                }
+                modal._updateImage(currentIdx);
+              }
+            };
+            
+            imageEl.addEventListener('touchstart', handleTouchStart, { passive: true });
+            imageEl.addEventListener('touchend', handleTouchEnd, { passive: true });
+            imageEl._hasTouchListeners = true;
+          }
+          
+          // Fonction updateImage (sera mise à jour à chaque ouverture)
+          modal._updateImage = (index) => {
+            const currentScreenshots = modal._screenshots || [];
+            if (currentScreenshots.length === 0) return;
+            
+            if (index < 0) index = currentScreenshots.length - 1;
+            if (index >= currentScreenshots.length) index = 0;
+            modal._currentIndex = index;
+            
+            // Animation de fade lors du changement
+            imageEl.classList.add('loading');
+            imageEl.src = currentScreenshots[index];
+            
+            // Retirer la classe loading une fois l'image chargée
+            imageEl.onload = () => {
+              imageEl.classList.remove('loading');
+            };
+            imageEl.onerror = () => {
+              imageEl.classList.remove('loading');
+            };
+            
+            currentEl.textContent = index + 1;
+            totalEl.textContent = currentScreenshots.length;
+            
+            // Désactiver les boutons si nécessaire
+            prevBtn.disabled = currentScreenshots.length <= 1;
+            nextBtn.disabled = currentScreenshots.length <= 1;
+          };
+          
+          // Gestionnaires de clic pour les flèches (ajoutés une seule fois)
+          if (!prevBtn._hasListener) {
+            prevBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const currentScreenshots = modal._screenshots || [];
+              let currentIdx = modal._currentIndex || 0;
+              currentIdx = currentIdx <= 0 ? currentScreenshots.length - 1 : currentIdx - 1;
+              modal._updateImage(currentIdx);
+            });
+            prevBtn._hasListener = true;
+          }
+          
+          if (!nextBtn._hasListener) {
+            nextBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const currentScreenshots = modal._screenshots || [];
+              let currentIdx = modal._currentIndex || 0;
+              currentIdx = currentIdx >= currentScreenshots.length - 1 ? 0 : currentIdx + 1;
+              modal._updateImage(currentIdx);
+            });
+            nextBtn._hasListener = true;
+          }
+          
+          if (!closeBtn._hasListener) {
+            closeBtn.addEventListener('click', () => {
+              modal.classList.remove('active');
+              document.body.style.overflow = '';
+            });
+            closeBtn._hasListener = true;
+          }
+          
+          if (!overlay._hasListener) {
+            overlay.addEventListener('click', () => {
+              modal.classList.remove('active');
+              document.body.style.overflow = '';
+            });
+            overlay._hasListener = true;
+          }
+        }
+        
+        // Stocker les screenshots dans le modal et ouvrir
+        modal._screenshots = normalizedScreenshots;
+        modal._updateImage(startIndex);
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
 
-      if (short_screenshots.length > 0) {
-        // Utiliser short_screenshots si disponible
-        displayScreenshots(short_screenshots);
-      } else {
-        // Si pas de short_screenshots mais qu'il y a un screenshots_count, faire une requête
-        const gameId = id || argument;
+      // Récupérer TOUS les screenshots (pas seulement short_screenshots)
+      const gameId = id || argument;
+      const fetchAllScreenshots = () => {
         if (gameId && screenshots_count > 0) {
-          fetch(`${API_BASE_URL}/games/${gameId}/screenshots?key=${API_KEY}`)
+          return fetch(`${API_BASE_URL}/games/${gameId}/screenshots?key=${API_KEY}`)
             .then(response => response.json())
             .then(screenshotsData => {
               console.log('📸 Screenshots API response:', screenshotsData);
               if (screenshotsData.results && screenshotsData.results.length > 0) {
-                const screenshots = screenshotsData.results.map(s => s.image);
-                console.log(`📸 ${screenshots.length} screenshots récupérés, affichage des 4 premiers`);
+                const screenshots = screenshotsData.results;
+                console.log(`📸 ${screenshots.length} screenshots récupérés`);
+                // Mettre à jour allScreenshots avec tous les screenshots
+                allScreenshots = screenshots.map(s => s.image || s);
                 displayScreenshots(screenshots);
+                return screenshots;
               } else {
                 console.log('📸 Aucun screenshot trouvé');
                 displayScreenshots([]);
+                return [];
               }
             })
             .catch(error => {
               console.error('Erreur lors du chargement des screenshots:', error);
               displayScreenshots([]);
+              return [];
             });
         } else {
           displayScreenshots([]);
+          return Promise.resolve([]);
         }
+      };
+      
+      if (short_screenshots.length > 0) {
+        // Si on a short_screenshots, on les affiche d'abord
+        displayScreenshots(short_screenshots);
+        // Toujours récupérer tous les screenshots pour le modal (même si on en a déjà)
+        if (screenshots_count > 0) {
+          fetchAllScreenshots().then(fullScreenshots => {
+            // Mettre à jour allScreenshots avec tous les screenshots récupérés
+            if (fullScreenshots && fullScreenshots.length > 0) {
+              allScreenshots = fullScreenshots.map(s => {
+                if (typeof s === 'string') return s;
+                return s.image || s;
+              });
+              console.log(`📸 ${allScreenshots.length} screenshots disponibles pour le modal`);
+            }
+          });
+        }
+      } else {
+        // Si pas de short_screenshots, faire une requête pour tous les screenshots
+        fetchAllScreenshots();
       }
 
       // YouTube videos (autres vidéos) - affiché seulement s'il existe

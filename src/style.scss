@@ -573,6 +573,13 @@ main {
       min-height: 240px;
       object-fit: cover;
       border-radius: $radius-md;
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.02);
+        opacity: 0.9;
+      }
       
       // Première image peut être plus grande selon la maquette
       &:nth-child(1),
@@ -580,8 +587,7 @@ main {
         min-height: 248px;
       }
       
-      &:nth-child(3),
-      &:nth-child(4) {
+      &:nth-child(3) {
         min-height: 249px;
       }
       
@@ -590,6 +596,278 @@ main {
         height: auto;
         min-height: 200px;
       }
+    }
+    
+    // Bouton "Voir tous" à la place de la 4ème image
+    .screenshot-view-all {
+      width: 100%;
+      min-height: 249px;
+      background-color: $bg-secondary;
+      border: 2px dashed $text-medium-gray;
+      border-radius: $radius-md;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      
+      @include mobile {
+        min-height: 200px;
+      }
+      
+      &:hover {
+        background-color: rgba($accent-color, 0.1);
+        border-color: $accent-color;
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba($accent-color, 0.2);
+        
+        .screenshot-view-all-content {
+          transform: scale(1.05);
+          
+          .screenshot-icon {
+            opacity: 1;
+          }
+        }
+      }
+      
+      &:active {
+        transform: scale(0.98);
+      }
+      
+      .screenshot-view-all-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-sm;
+        transition: transform 0.3s ease;
+        
+        .screenshot-icon {
+          width: 48px;
+          height: 48px;
+          opacity: 0.8;
+          transition: opacity 0.3s ease;
+        }
+        
+        .screenshot-count {
+          font-size: $font-size-2xl;
+          font-weight: $font-weight-bold;
+          color: $accent-color;
+          line-height: 1;
+          
+          // Masquer si vide (quand il y a exactement 3 screenshots)
+          &:empty {
+            display: none;
+          }
+        }
+        
+        .screenshot-label {
+          font-size: $font-size-base;
+          color: $text-primary;
+          font-weight: $font-weight-medium;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+// Modal pour afficher tous les screenshots
+.screenshots-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  
+  &.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .screenshots-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(4px);
+  }
+  
+  .screenshots-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    @include mobile {
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      max-height: 100vh;
+    }
+  }
+  
+  .screenshots-modal-close {
+    position: absolute;
+    top: $spacing-lg;
+    right: $spacing-lg;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10001;
+    transition: background 0.2s ease;
+    
+    @include mobile {
+      top: $spacing-md;
+      right: $spacing-md;
+      width: 36px;
+      height: 36px;
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  .screenshots-modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10001;
+    transition: all 0.2s ease;
+    
+    @include mobile {
+      width: 44px;
+      height: 44px;
+    }
+    
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    &:active:not(:disabled) {
+      transform: translateY(-50%) scale(0.95);
+    }
+    
+    &:disabled {
+      opacity: 0.2;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    svg {
+      width: 24px;
+      height: 24px;
+      pointer-events: none;
+    }
+    
+    &.screenshots-modal-prev {
+      left: $spacing-xl;
+      
+      @include mobile {
+        left: $spacing-sm;
+      }
+      
+      @include tablet {
+        left: $spacing-md;
+      }
+    }
+    
+    &.screenshots-modal-next {
+      right: $spacing-xl;
+      
+      @include mobile {
+        right: $spacing-sm;
+      }
+      
+      @include tablet {
+        right: $spacing-md;
+      }
+    }
+  }
+  
+  .screenshots-modal-image-container {
+    width: 100%;
+    max-width: 100%;
+    max-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: $spacing-3xl 0 $spacing-lg 0;
+    padding: 0 $spacing-2xl;
+    
+    @include mobile {
+      max-height: 75vh;
+      margin: $spacing-2xl 0 $spacing-md 0;
+      padding: 0 $spacing-xl;
+    }
+    
+    @include tablet {
+      padding: 0 $spacing-xl;
+    }
+  }
+  
+  .screenshots-modal-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: $radius-md;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease;
+    
+    // Animation de fade lors du changement d'image
+    &.loading {
+      opacity: 0.5;
+    }
+  }
+  
+  .screenshots-modal-counter {
+    color: $text-primary;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-medium;
+    margin-top: $spacing-md;
+    text-align: center;
+    
+    .screenshots-modal-current {
+      color: $accent-color;
+      font-weight: $font-weight-bold;
     }
   }
 }
